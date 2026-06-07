@@ -1,0 +1,23 @@
+# --- 秘密情報は絶対にイメージへ入れない ---
+.env
+.env.*
+
+# --- ビルドで再生成されるもの / 不要物 ---
+node_modules
+.nuxt
+.output
+dist
+*.log
+.DS_Store
+
+# --- VCS / CI / ドキュメント ---
+.git
+.gitignore
+.github
+README.md
+
+# --- ローカル開発用 ---
+.claude
+cookies.txt
+fresh.txt
+f.txt
