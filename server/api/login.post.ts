@@ -15,7 +15,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody<{ text?: string }>(event)
-  const expected = useRuntimeConfig().loginText
+  // 実行時に注入される環境変数から直接読む（runtimeConfig はビルド時固定のため使わない）
+  const expected = process.env.LOGIN_TEXT
 
   if (!expected) {
     throw createError({ statusCode: 500, statusMessage: 'LOGIN_TEXT が未設定です' })

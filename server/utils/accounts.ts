@@ -58,9 +58,7 @@ export function getAccountDefs(): AccountDef[] {
   }))
 }
 
-/** .env から指定 index(1..ACCOUNT_DISPLAY_NAMES.length) のメールアドレスを取得 */
+/** 指定 index(1..ACCOUNT_DISPLAY_NAMES.length) のメールアドレスを実行時の環境変数から取得 */
 export function getAccountEmail(index: number): string | undefined {
-  const config = useRuntimeConfig()
-  const key = `accountEmail${index}` as keyof typeof config
-  return config[key] as string | undefined
+  return process.env[`ACCOUNT_EMAIL_${index}`]
 }

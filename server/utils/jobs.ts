@@ -72,7 +72,7 @@ export function startJob(topicId: string, inputs: AccountInput[]): string {
 }
 
 async function runJob(job: Job, topicId: string, inputs: AccountInput[]) {
-  const password = useRuntimeConfig().accountPassword
+  const password = process.env.ACCOUNT_PASSWORD
   if (!password) throw new Error('ACCOUNT_PASSWORD が未設定です')
 
   const defs = getAccountDefs()

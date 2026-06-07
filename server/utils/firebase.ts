@@ -22,7 +22,7 @@ export async function signIn(email: string, password: string): Promise<SignInRes
     return { idToken: cached.idToken, localId: cached.localId, email }
   }
 
-  const apiKey = useRuntimeConfig().firebaseApiKey
+  const apiKey = process.env.FIREBASE_API_KEY
   if (!apiKey) {
     throw createError({ statusCode: 500, statusMessage: 'FIREBASE_API_KEY が未設定です' })
   }
