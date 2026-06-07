@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "TMPDIR=/tmp nuxt dev",
+    "start": "HOST=0.0.0.0 PORT=3000 node --env-file=.env .output/server/index.mjs",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"

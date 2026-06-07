@@ -24,10 +24,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 # 全インターフェースで待受（コンテナ外からのアクセスに必須）
 ENV HOST=0.0.0.0
-# Koyeb のサービスポートに合わせる（ダッシュボードで 8000 を指定）
-ENV PORT=8000
+# コンテナの待受ポート。ECS Express Mode / Lightsail Containers の
+# コンテナポート設定と一致させること（8080）
+ENV PORT=8080
 
 COPY --from=build /app/.output ./.output
 
-EXPOSE 8000
+EXPOSE 8080
 CMD ["node", ".output/server/index.mjs"]

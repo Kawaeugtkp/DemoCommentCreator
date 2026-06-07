@@ -1,0 +1,94 @@
+# =====================================================================
+#  Render Blueprint
+#  - Dockerfile からビルドして Web サービスとして常駐（free プラン）
+#  - GitHub 連携：master への push で自動デプロイ
+#  - ヘルスチェックは /healthz（200を返す軽量ルート）
+#
+#  ■ 秘密情報は値をここに書かない（sync: false）。
+#    Render ダッシュボードの Environment で各値を入力する。
+#  ■ PORT は Render が自動注入し、Nitro(process.env.PORT) が拾う。
+#    HOST=0.0.0.0 は Dockerfile 側で設定済み。
+# =====================================================================
+services:
+  - type: web
+    name: demo-comment-creator
+    runtime: docker
+    plan: free
+    region: singapore           # 日本から最も近い Render リージョン
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeploy: true            # push で自動デプロイ
+    envVars:
+      # --- 合言葉ログイン ---
+      - key: LOGIN_TEXT
+        sync: false
+      # --- Firebase ---
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      # --- アカウント共通パスワード ---
+      - key: ACCOUNT_PASSWORD
+        sync: false
+      # --- 29アカウントのメールアドレス ---
+      - key: ACCOUNT_EMAIL_1
+        sync: false
+      - key: ACCOUNT_EMAIL_2
+        sync: false
+      - key: ACCOUNT_EMAIL_3
+        sync: false
+      - key: ACCOUNT_EMAIL_4
+        sync: false
+      - key: ACCOUNT_EMAIL_5
+        sync: false
+      - key: ACCOUNT_EMAIL_6
+        sync: false
+      - key: ACCOUNT_EMAIL_7
+        sync: false
+      - key: ACCOUNT_EMAIL_8
+        sync: false
+      - key: ACCOUNT_EMAIL_9
+        sync: false
+      - key: ACCOUNT_EMAIL_10
+        sync: false
+      - key: ACCOUNT_EMAIL_11
+        sync: false
+      - key: ACCOUNT_EMAIL_12
+        sync: false
+      - key: ACCOUNT_EMAIL_13
+        sync: false
+      - key: ACCOUNT_EMAIL_14
+        sync: false
+      - key: ACCOUNT_EMAIL_15
+        sync: false
+      - key: ACCOUNT_EMAIL_16
+        sync: false
+      - key: ACCOUNT_EMAIL_17
+        sync: false
+      - key: ACCOUNT_EMAIL_18
+        sync: false
+      - key: ACCOUNT_EMAIL_19
+        sync: false
+      - key: ACCOUNT_EMAIL_20
+        sync: false
+      - key: ACCOUNT_EMAIL_21
+        sync: false
+      - key: ACCOUNT_EMAIL_22
+        sync: false
+      - key: ACCOUNT_EMAIL_23
+        sync: false
+      - key: ACCOUNT_EMAIL_24
+        sync: false
+      - key: ACCOUNT_EMAIL_25
+        sync: false
+      - key: ACCOUNT_EMAIL_26
+        sync: false
+      - key: ACCOUNT_EMAIL_27
+        sync: false
+      - key: ACCOUNT_EMAIL_28
+        sync: false
+      - key: ACCOUNT_EMAIL_29
+        sync: false
