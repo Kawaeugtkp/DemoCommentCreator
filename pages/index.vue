@@ -26,7 +26,8 @@ const { data: accountsData } = await useFetch<{ accounts: AccountDef[] }>('/api/
 interface AccountForm {
   index: number
   displayName: string
-  // type="number" の input は Vue が値を数値へ自動キャストするため、空欄時は '' / 入力時は number になりうる
+  // 入力欄は type="text"（inputmode=numeric）なので値は常に文字列。
+  // 念のため number も許容（送信時に String()→Number() で正規化）
   setNumber: string | number
   comment: string
   likeCount: string | number
@@ -225,9 +226,8 @@ function fmtTime(iso: string) {
               <input
                 v-model="a.setNumber"
                 class="cell-input"
-                type="number"
-                min="1"
-                :max="maxSetNumber"
+                type="text"
+                inputmode="numeric"
                 placeholder="-"
               />
             </td>
@@ -238,8 +238,8 @@ function fmtTime(iso: string) {
               <input
                 v-model="a.likeCount"
                 class="cell-input"
-                type="number"
-                min="0"
+                type="text"
+                inputmode="numeric"
                 placeholder="0"
               />
             </td>
