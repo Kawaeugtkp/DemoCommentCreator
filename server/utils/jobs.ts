@@ -8,7 +8,8 @@ import { createComment, getTopic, likeComment, pickSet } from './chepics'
 //  サーバー側のバックグラウンドで進行し、画面はステータスをポーリングする。
 // =====================================================================
 
-const COMMENT_WINDOW_MS = 4 * 60 * 1000 // セット選択完了後、4分以内にコメント
+const COMMENT_WINDOW_MS = 6 * 60 * 1000 // セット選択完了後、6分以内のランダムなタイミングでコメント
+const LIKE_WINDOW_MS = 3 * 60 * 1000 // 各コメント投稿後、3分以内のランダムなタイミングでいいね（同一コメント内でも分散）
 
 export interface AccountInput {
   index: number // 1..（アカウント数）
@@ -118,18 +119,15 @@ async function runJob(job: Job, topicId: string, inputs: AccountInput[]) {
     }),
   )
 
-  // --- 2. コメント投稿（全セット選択完了の直後〜4分後のランダムタイミング） ---
-  const t0 = Date.now()
+  // --- 2 & 3. コメント投稿＋いいね（コメントごとに独立して実行） ---
+  // 各コメントは「セット選択完了の直後〜COMMENT_WINDOW_MS 以内のランダムなタイミング」で投稿し、
+  // 投稿が成功したら、そのコメントへのいいねを（他コメントの完了を待たず）すぐに開始する。
+  // 同一コメントへのいいねも、アカウントごとに LIKE_WINDOW_MS 以内のランダムなタイミングへ分散させる。
   const commenters = inputs.filter((a) => a.comment.trim() !== '')
-  log(job, `セット選択完了。コメント投稿を ${Math.round(COMMENT_WINDOW_MS / 1000)} 秒以内のランダムタイミングで実行します（対象 ${commenters.length} アカウント）`)
-
-  interface PostedComment {
-    index: number
-    setId: string
-    commentId: string
-    likeCount: number
-  }
-  const posted: PostedComment[] = []
+  log(
+    job,
+    `セット選択完了。コメント投稿を ${Math.round(COMMENT_WINDOW_MS / 60000)} 分以内のランダムタイミングで実行し、各コメント投稿後にそのコメントへのいいねを実行します（対象 ${commenters.length} アカウント）`,
+  )
 
   await Promise.all(
     commenters.map(async (a) => {
@@ -138,49 +136,54 @@ async function runJob(job: Job, topicId: string, inputs: AccountInput[]) {
         log(job, `${nameOf(a.index)}: セット未選択のためコメントできません。スキップ`, 'warn')
         return
       }
+
+      // (2) ランダムなタイミングでコメント投稿
       const delay = Math.floor(Math.random() * COMMENT_WINDOW_MS)
       await sleep(delay)
+      let commentId: string
       try {
         const token = await tokenOf(a.index)
-        const commentId = await createComment(token, topicId, setId, a.comment)
-        posted.push({ index: a.index, setId, commentId, likeCount: a.likeCount })
+        commentId = await createComment(token, topicId, setId, a.comment)
         log(job, `${nameOf(a.index)}: コメント投稿（+${Math.round(delay / 1000)}秒, comment_id=${commentId}）`)
       } catch (e: any) {
         log(job, `${nameOf(a.index)}: コメント投稿でエラー: ${e?.message ?? e}`, 'error')
+        return
       }
+
+      // (3) このコメントへのいいねを投稿直後に開始（全コメントの完了は待たない）
+      if (a.likeCount <= 0) return
+
+      // 同じセットを選んでいるアカウント（本人を含む）がいいね候補プール
+      const pool = pickers
+        .filter((p) => accountSetId.get(p.index) === setId)
+        .map((p) => p.index)
+
+      let likers = shuffle(pool).slice(0, a.likeCount)
+      if (a.likeCount > pool.length) {
+        log(
+          job,
+          `${nameOf(a.index)} のコメント: 指定いいね数 ${a.likeCount} に対し同セット選択者は ${pool.length} 名のみ。${pool.length} 件で実行`,
+          'warn',
+        )
+        likers = pool
+      }
+
+      // 各いいねを LIKE_WINDOW_MS 以内のランダムなタイミングへ分散
+      await Promise.all(
+        likers.map(async (likerIndex) => {
+          const likeDelay = Math.floor(Math.random() * LIKE_WINDOW_MS)
+          await sleep(likeDelay)
+          try {
+            const token = await tokenOf(likerIndex)
+            await likeComment(token, setId, commentId)
+            log(job, `${nameOf(likerIndex)} が ${nameOf(a.index)} のコメントにいいね（+${Math.round(likeDelay / 1000)}秒）`)
+          } catch (e: any) {
+            log(job, `${nameOf(likerIndex)}: いいねでエラー: ${e?.message ?? e}`, 'error')
+          }
+        }),
+      )
     }),
   )
-
-  // --- 3. いいね（全コメント投稿完了後） ---
-  log(job, `全コメント投稿が完了。いいねを実行します`)
-  for (const pc of posted) {
-    if (pc.likeCount <= 0) continue
-
-    // 対象コメントと同じセットを選んでいるアカウント（本人を含む）がプール
-    const pool = pickers
-      .filter((a) => accountSetId.get(a.index) === pc.setId)
-      .map((a) => a.index)
-
-    let likers = shuffle(pool).slice(0, pc.likeCount)
-    if (pc.likeCount > pool.length) {
-      log(
-        job,
-        `${nameOf(pc.index)} のコメント: 指定いいね数 ${pc.likeCount} に対し同セット選択者は ${pool.length} 名のみ。${pool.length} 件で実行`,
-        'warn',
-      )
-      likers = pool
-    }
-
-    for (const likerIndex of likers) {
-      try {
-        const token = await tokenOf(likerIndex)
-        await likeComment(token, pc.setId, pc.commentId)
-        log(job, `${nameOf(likerIndex)} が ${nameOf(pc.index)} のコメントにいいね`)
-      } catch (e: any) {
-        log(job, `${nameOf(likerIndex)}: いいねでエラー: ${e?.message ?? e}`, 'error')
-      }
-    }
-  }
 
   job.status = 'completed'
   job.finishedAt = Date.now()
