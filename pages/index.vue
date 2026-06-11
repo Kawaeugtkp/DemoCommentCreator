@@ -164,6 +164,10 @@ function logColor(level: JobLog['level']) {
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString('ja-JP')
 }
+
+function sanitizeSetNumber(a: AccountForm) {
+  a.setNumber = String(a.setNumber).replace(/[^0-9]/g, '').slice(0, 1)
+}
 </script>
 
 <template>
@@ -221,20 +225,22 @@ function fmtTime(iso: string) {
         </thead>
         <tbody>
           <tr v-for="a in accounts" :key="a.index">
-            <td class="c-name">{{ a.displayName }}</td>
-            <td class="c-set">
+            <td class="c-name" data-label="表示名">{{ a.displayName }}</td>
+            <td class="c-set" data-label="セット番号">
               <input
                 v-model="a.setNumber"
                 class="cell-input"
                 type="text"
                 inputmode="numeric"
                 placeholder="-"
+                maxlength="1"
+                @input="sanitizeSetNumber(a)"
               />
             </td>
-            <td class="c-comment">
+            <td class="c-comment" data-label="コメント">
               <input v-model="a.comment" class="cell-input" placeholder="コメント（任意）" />
             </td>
-            <td class="c-like">
+            <td class="c-like" data-label="いいね数">
               <input
                 v-model="a.likeCount"
                 class="cell-input"
@@ -485,5 +491,59 @@ function fmtTime(iso: string) {
   color: #e03131;
   font-size: 14px;
   margin: 10px 0 0;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 12px 60px;
+  }
+  .card {
+    padding: 16px 14px;
+  }
+  .acc-table thead {
+    display: none;
+  }
+  .acc-table,
+  .acc-table tbody,
+  .acc-table tr,
+  .acc-table td {
+    display: block;
+    width: 100%;
+  }
+  .acc-table tr {
+    border: 1px solid #e0e0e8;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+  }
+  .acc-table td {
+    border-bottom: none;
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .acc-table td::before {
+    content: attr(data-label);
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+    flex-shrink: 0;
+    width: 80px;
+  }
+  .c-name,
+  .c-set,
+  .c-comment,
+  .c-like {
+    width: 100%;
+  }
+  .c-name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .cell-input {
+    flex: 1;
+    font-size: 16px;
+  }
 }
 </style>
