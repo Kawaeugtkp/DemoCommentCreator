@@ -33,7 +33,7 @@ services:
       # --- アカウント共通パスワード ---
       - key: ACCOUNT_PASSWORD
         sync: false
-      # --- 29アカウントのメールアドレス ---
+      # --- 130アカウントのメールアドレス ---
       - key: ACCOUNT_EMAIL_1
         sync: false
       - key: ACCOUNT_EMAIL_2
@@ -91,4 +91,206 @@ services:
       - key: ACCOUNT_EMAIL_28
         sync: false
       - key: ACCOUNT_EMAIL_29
+        sync: false
+      - key: ACCOUNT_EMAIL_30
+        sync: false
+      - key: ACCOUNT_EMAIL_31
+        sync: false
+      - key: ACCOUNT_EMAIL_32
+        sync: false
+      - key: ACCOUNT_EMAIL_33
+        sync: false
+      - key: ACCOUNT_EMAIL_34
+        sync: false
+      - key: ACCOUNT_EMAIL_35
+        sync: false
+      - key: ACCOUNT_EMAIL_36
+        sync: false
+      - key: ACCOUNT_EMAIL_37
+        sync: false
+      - key: ACCOUNT_EMAIL_38
+        sync: false
+      - key: ACCOUNT_EMAIL_39
+        sync: false
+      - key: ACCOUNT_EMAIL_40
+        sync: false
+      - key: ACCOUNT_EMAIL_41
+        sync: false
+      - key: ACCOUNT_EMAIL_42
+        sync: false
+      - key: ACCOUNT_EMAIL_43
+        sync: false
+      - key: ACCOUNT_EMAIL_44
+        sync: false
+      - key: ACCOUNT_EMAIL_45
+        sync: false
+      - key: ACCOUNT_EMAIL_46
+        sync: false
+      - key: ACCOUNT_EMAIL_47
+        sync: false
+      - key: ACCOUNT_EMAIL_48
+        sync: false
+      - key: ACCOUNT_EMAIL_49
+        sync: false
+      - key: ACCOUNT_EMAIL_50
+        sync: false
+      - key: ACCOUNT_EMAIL_51
+        sync: false
+      - key: ACCOUNT_EMAIL_52
+        sync: false
+      - key: ACCOUNT_EMAIL_53
+        sync: false
+      - key: ACCOUNT_EMAIL_54
+        sync: false
+      - key: ACCOUNT_EMAIL_55
+        sync: false
+      - key: ACCOUNT_EMAIL_56
+        sync: false
+      - key: ACCOUNT_EMAIL_57
+        sync: false
+      - key: ACCOUNT_EMAIL_58
+        sync: false
+      - key: ACCOUNT_EMAIL_59
+        sync: false
+      - key: ACCOUNT_EMAIL_60
+        sync: false
+      - key: ACCOUNT_EMAIL_61
+        sync: false
+      - key: ACCOUNT_EMAIL_62
+        sync: false
+      - key: ACCOUNT_EMAIL_63
+        sync: false
+      - key: ACCOUNT_EMAIL_64
+        sync: false
+      - key: ACCOUNT_EMAIL_65
+        sync: false
+      - key: ACCOUNT_EMAIL_66
+        sync: false
+      - key: ACCOUNT_EMAIL_67
+        sync: false
+      - key: ACCOUNT_EMAIL_68
+        sync: false
+      - key: ACCOUNT_EMAIL_69
+        sync: false
+      - key: ACCOUNT_EMAIL_70
+        sync: false
+      - key: ACCOUNT_EMAIL_71
+        sync: false
+      - key: ACCOUNT_EMAIL_72
+        sync: false
+      - key: ACCOUNT_EMAIL_73
+        sync: false
+      - key: ACCOUNT_EMAIL_74
+        sync: false
+      - key: ACCOUNT_EMAIL_75
+        sync: false
+      - key: ACCOUNT_EMAIL_76
+        sync: false
+      - key: ACCOUNT_EMAIL_77
+        sync: false
+      - key: ACCOUNT_EMAIL_78
+        sync: false
+      - key: ACCOUNT_EMAIL_79
+        sync: false
+      - key: ACCOUNT_EMAIL_80
+        sync: false
+      - key: ACCOUNT_EMAIL_81
+        sync: false
+      - key: ACCOUNT_EMAIL_82
+        sync: false
+      - key: ACCOUNT_EMAIL_83
+        sync: false
+      - key: ACCOUNT_EMAIL_84
+        sync: false
+      - key: ACCOUNT_EMAIL_85
+        sync: false
+      - key: ACCOUNT_EMAIL_86
+        sync: false
+      - key: ACCOUNT_EMAIL_87
+        sync: false
+      - key: ACCOUNT_EMAIL_88
+        sync: false
+      - key: ACCOUNT_EMAIL_89
+        sync: false
+      - key: ACCOUNT_EMAIL_90
+        sync: false
+      - key: ACCOUNT_EMAIL_91
+        sync: false
+      - key: ACCOUNT_EMAIL_92
+        sync: false
+      - key: ACCOUNT_EMAIL_93
+        sync: false
+      - key: ACCOUNT_EMAIL_94
+        sync: false
+      - key: ACCOUNT_EMAIL_95
+        sync: false
+      - key: ACCOUNT_EMAIL_96
+        sync: false
+      - key: ACCOUNT_EMAIL_97
+        sync: false
+      - key: ACCOUNT_EMAIL_98
+        sync: false
+      - key: ACCOUNT_EMAIL_99
+        sync: false
+      - key: ACCOUNT_EMAIL_100
+        sync: false
+      - key: ACCOUNT_EMAIL_101
+        sync: false
+      - key: ACCOUNT_EMAIL_102
+        sync: false
+      - key: ACCOUNT_EMAIL_103
+        sync: false
+      - key: ACCOUNT_EMAIL_104
+        sync: false
+      - key: ACCOUNT_EMAIL_105
+        sync: false
+      - key: ACCOUNT_EMAIL_106
+        sync: false
+      - key: ACCOUNT_EMAIL_107
+        sync: false
+      - key: ACCOUNT_EMAIL_108
+        sync: false
+      - key: ACCOUNT_EMAIL_109
+        sync: false
+      - key: ACCOUNT_EMAIL_110
+        sync: false
+      - key: ACCOUNT_EMAIL_111
+        sync: false
+      - key: ACCOUNT_EMAIL_112
+        sync: false
+      - key: ACCOUNT_EMAIL_113
+        sync: false
+      - key: ACCOUNT_EMAIL_114
+        sync: false
+      - key: ACCOUNT_EMAIL_115
+        sync: false
+      - key: ACCOUNT_EMAIL_116
+        sync: false
+      - key: ACCOUNT_EMAIL_117
+        sync: false
+      - key: ACCOUNT_EMAIL_118
+        sync: false
+      - key: ACCOUNT_EMAIL_119
+        sync: false
+      - key: ACCOUNT_EMAIL_120
+        sync: false
+      - key: ACCOUNT_EMAIL_121
+        sync: false
+      - key: ACCOUNT_EMAIL_122
+        sync: false
+      - key: ACCOUNT_EMAIL_123
+        sync: false
+      - key: ACCOUNT_EMAIL_124
+        sync: false
+      - key: ACCOUNT_EMAIL_125
+        sync: false
+      - key: ACCOUNT_EMAIL_126
+        sync: false
+      - key: ACCOUNT_EMAIL_127
+        sync: false
+      - key: ACCOUNT_EMAIL_128
+        sync: false
+      - key: ACCOUNT_EMAIL_129
+        sync: false
+      - key: ACCOUNT_EMAIL_130
         sync: false
