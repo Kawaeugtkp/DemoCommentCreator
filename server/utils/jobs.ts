@@ -4,8 +4,12 @@ import { getAccountDefs, getAccountEmail } from './accounts'
 import { signIn } from './firebase'
 import { createComment, getTopic, likeComment, pickSet } from './chepics'
 
-const COMMENT_WINDOW_MS = 30 * 60 * 1000
-const LIKE_WINDOW_MS = 5 * 60 * 1000
+const COMMENT_WINDOW_MS = 60 * 60 * 1000 // セット選択完了後、1時間以内のランダムなタイミングでコメント
+const LIKE_WINDOW_MS = 15 * 60 * 1000 // 各コメント投稿後、15分以内のランダムなタイミングでいいね
+
+// 同時に処理するジョブ数。各ジョブは処理時間のほぼ全部が sleep（I/O待ち）なので、
+// 1 プロセスでも多数を同時に捌ける。デフォルトの 1 だと順番待ちが発生する。
+const CONCURRENCY = 100
 
 export interface AccountInput {
   index: number
@@ -45,7 +49,11 @@ async function getQueue(): Promise<Queue.Queue<JobData>> {
     throw new Error('REDIS_URL が未設定です')
   }
 
-  queue = new Queue<JobData>('execute-job', redisUrl)
+  // maxStalledCount: 0 にして、中断されたジョブを「最初から再実行」しないようにする。
+  // （再実行するとコメントを二重投稿するリスクがあるため、中断時は失敗扱いにする）
+  queue = new Queue<JobData>('execute-job', redisUrl, {
+    settings: { maxStalledCount: 0 },
+  })
 
   return queue
 }
@@ -102,7 +110,12 @@ export async function initializeWorker() {
 
   const q = await getQueue()
 
-  q.process(async (job) => {
+  // 起動時に、前プロセス（前回デプロイ等）から残った待機中ジョブを破棄する。
+  // これがないと、古いトピックのジョブを拾って突然動き出してしまう。
+  // 中断された active ジョブは maxStalledCount: 0 により再実行されず失敗扱いになる。
+  await q.empty().catch(() => {})
+
+  q.process(CONCURRENCY, async (job) => {
     const data = job.data as JobData
     const logs: JobLog[] = []
 
