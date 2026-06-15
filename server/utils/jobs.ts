@@ -8,8 +8,8 @@ import { createComment, getTopic, likeComment, pickSet } from './chepics'
 //  サーバー側のバックグラウンドで進行し、画面はステータスをポーリングする。
 // =====================================================================
 
-const COMMENT_WINDOW_MS = 6 * 60 * 1000 // セット選択完了後、6分以内のランダムなタイミングでコメント
-const LIKE_WINDOW_MS = 3 * 60 * 1000 // 各コメント投稿後、3分以内のランダムなタイミングでいいね（同一コメント内でも分散）
+const COMMENT_WINDOW_MS = 30 * 60 * 1000 // セット選択完了後、30分以内のランダムなタイミングでコメント
+const LIKE_WINDOW_MS = 5 * 60 * 1000 // 各コメント投稿後、5分以内のランダムなタイミングでいいね（同一コメント内でも分散）
 
 export interface AccountInput {
   index: number // 1..（アカウント数）
