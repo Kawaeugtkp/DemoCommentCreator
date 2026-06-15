@@ -73,24 +73,26 @@ export async function getJob(id: string): Promise<Job | undefined> {
 
   if (!bullJob) return undefined
 
-  const jobData = bullJob.data as JobData
   const logs: JobLog[] = []
 
-  // ジョブのプログレスデータからログを復元
-  // progress()は{logs: JobLog[]}の形式を想定
-  if (bullJob._progress) {
-    const progress = JSON.parse(String(bullJob._progress))
-    if (progress.logs && Array.isArray(progress.logs)) {
-      logs.push(...progress.logs)
-    }
+  // 進捗（ログ）を復元。Bull は Redis から読み込む際に progress を
+  // すでにオブジェクトへ復元しているので、そのまま参照する（JSON.parse 不要）。
+  const progress = bullJob.progress() as unknown
+  if (progress && typeof progress === 'object' && Array.isArray((progress as { logs?: unknown }).logs)) {
+    logs.push(...((progress as { logs: JobLog[] }).logs))
   }
 
+  // isCompleted()/isFailed() は Promise を返すため、getState() で状態を取得する。
+  const state = await bullJob.getState()
+  const status: Job['status'] =
+    state === 'completed' ? 'completed' : state === 'failed' ? 'failed' : 'running'
+
   return {
-    id: bullJob.id!,
-    status: bullJob.isCompleted() ? 'completed' : bullJob.isFailed() ? 'failed' : 'running',
+    id: String(bullJob.id),
+    status,
     logs,
     startedAt: bullJob.processedOn || bullJob.timestamp,
-    finishedAt: bullJob.finishedOn,
+    finishedAt: bullJob.finishedOn ?? undefined,
     error: bullJob.failedReason,
   }
 }
