@@ -11,7 +11,9 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "bull": "^4.13.0",
     "nuxt": "^3.13.0",
+    "redis": "^4.6.0",
     "vue": "^3.5.0",
     "vue-router": "^4.4.0"
   },

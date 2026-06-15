@@ -45,6 +45,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const jobId = startJob(topicId, inputs)
+  const jobId = await startJob(topicId, inputs)
   return { jobId }
 })

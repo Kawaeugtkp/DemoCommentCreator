@@ -2,10 +2,10 @@ import { requireSession } from '../utils/session'
 import { getJob } from '../utils/jobs'
 
 // ジョブの進捗をポーリングで取得
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   requireSession(event)
   const id = String(getQuery(event).jobId ?? '')
-  const job = getJob(id)
+  const job = await getJob(id)
   if (!job) {
     throw createError({ statusCode: 404, statusMessage: 'ジョブが見つかりません' })
   }
