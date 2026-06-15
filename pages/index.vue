@@ -13,6 +13,8 @@ interface TopicData {
 interface AccountDef {
   index: number
   displayName: string
+  chepicsName: string
+  bio: string
 }
 interface JobLog {
   time: string
@@ -26,6 +28,8 @@ const { data: accountsData } = await useFetch<{ accounts: AccountDef[] }>('/api/
 interface AccountForm {
   index: number
   displayName: string
+  chepicsName: string
+  bio: string
   // 入力欄は type="text"（inputmode=numeric）なので値は常に文字列。
   // 念のため number も許容（送信時に String()→Number() で正規化）
   setNumber: string | number
@@ -36,6 +40,8 @@ const accounts = ref<AccountForm[]>(
   (accountsData.value?.accounts ?? []).map((a) => ({
     index: a.index,
     displayName: a.displayName,
+    chepicsName: a.chepicsName,
+    bio: a.bio,
     setNumber: '',
     comment: '',
     likeCount: '',
@@ -225,7 +231,11 @@ function sanitizeSetNumber(a: AccountForm) {
         </thead>
         <tbody>
           <tr v-for="a in accounts" :key="a.index">
-            <td class="c-name" data-label="表示名">{{ a.displayName }}</td>
+            <td class="c-name" data-label="表示名">
+              <div class="acc-name">{{ a.displayName }}</div>
+              <div v-if="a.chepicsName" class="acc-chepics-name">{{ a.chepicsName }}</div>
+              <div v-if="a.bio" class="acc-bio">{{ a.bio }}</div>
+            </td>
             <td class="c-set" data-label="セット番号">
               <input
                 v-model="a.setNumber"
@@ -406,7 +416,7 @@ function sanitizeSetNumber(a: AccountForm) {
   font-weight: 600;
 }
 .c-name {
-  width: 130px;
+  width: 200px;
   font-size: 14px;
 }
 .c-set {
@@ -414,6 +424,21 @@ function sanitizeSetNumber(a: AccountForm) {
 }
 .c-like {
   width: 100px;
+}
+.acc-name {
+  font-weight: 600;
+}
+.acc-chepics-name {
+  font-size: 13px;
+  color: #4263eb;
+  margin-top: 2px;
+}
+.acc-bio {
+  font-size: 12px;
+  color: #777;
+  margin-top: 2px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .cell-input {
   width: 100%;
