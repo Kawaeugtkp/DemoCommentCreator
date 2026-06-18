@@ -4,7 +4,7 @@ import { getAccountDefs, getAccountEmail } from './accounts'
 import { signIn } from './firebase'
 import { createComment, getTopic, likeComment, pickSet } from './chepics'
 
-const COMMENT_WINDOW_MS = 60 * 60 * 1000 // セット選択完了後、1時間以内のランダムなタイミングでコメント
+const COMMENT_WINDOW_MS = 3 * 60 * 60 * 1000 // セット選択完了後、3時間以内のランダムなタイミングでコメント
 const LIKE_WINDOW_MS = 15 * 60 * 1000 // 各コメント投稿後、15分以内のランダムなタイミングでいいね
 
 // 同時に処理するジョブ数。各ジョブは処理時間のほぼ全部が sleep（I/O待ち）なので、
