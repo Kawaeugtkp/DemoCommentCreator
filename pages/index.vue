@@ -49,22 +49,34 @@ const accounts = ref<AccountForm[]>(
 )
 
 // --- トピック取得 ---
-const topicId = ref('')
+const topicUrl = ref('')
 const topic = ref<TopicData | null>(null)
 const topicLoading = ref(false)
 const topicError = ref('')
 
+// URL（例: https://chepics.com/topic/topic_d8s6q0go03dnh5v98c60）の
+// 最後のパス部分から topic_id を抽出する。
+function extractTopicId(input: string): string {
+  const trimmed = input.trim()
+  if (!trimmed) return ''
+  // クエリ・ハッシュを除去し、末尾スラッシュを取り除いた上で最後のセグメントを取得
+  const withoutQuery = trimmed.split(/[?#]/)[0].replace(/\/+$/, '')
+  const segments = withoutQuery.split('/')
+  return segments[segments.length - 1] ?? ''
+}
+
 async function fetchTopic() {
   topicError.value = ''
   topic.value = null
-  if (!topicId.value.trim()) {
-    topicError.value = 'topic_id を入力してください'
+  const topicId = extractTopicId(topicUrl.value)
+  if (!topicId) {
+    topicError.value = 'トピックのURLを入力してください'
     return
   }
   topicLoading.value = true
   try {
     topic.value = await $fetch<TopicData>('/api/topic', {
-      query: { topic_id: topicId.value.trim() },
+      query: { topic_id: topicId },
     })
   } catch (e: any) {
     topicError.value = e?.statusMessage || e?.data?.statusMessage || 'トピック取得に失敗しました'
@@ -188,9 +200,9 @@ function sanitizeSetNumber(a: AccountForm) {
       <h2>トピック</h2>
       <div class="topic-input">
         <input
-          v-model="topicId"
+          v-model="topicUrl"
           class="input"
-          placeholder="topic_id を入力"
+          placeholder="トピックのURL（例: https://chepics.com/topic/topic_xxxxx）を入力"
           @keyup.enter="fetchTopic"
         />
         <button class="btn" :disabled="topicLoading" @click="fetchTopic">
