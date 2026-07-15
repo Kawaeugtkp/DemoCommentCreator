@@ -61,8 +61,11 @@ node .output/server/index.mjs
 | `GET /api/topic?topic_id=` | トピック取得（要セッション） |
 | `POST /api/execute` | 実行開始 → `jobId` を返す（要セッション） |
 | `GET /api/execute-status?jobId=` | 実行進捗のポーリング（要セッション） |
+| `POST /api/accounts-refresh` | 全アカウントの最新プロフィール（表示名/bio）取得ジョブを開始 → `jobId` を返す（要セッション） |
+| `GET /api/accounts-refresh-status?jobId=` | プロフィール更新進捗のポーリング（要セッション） |
 
 ## 注意
 
 - ジョブの状態・セッション・ロックはサーバーの**メモリ上**で管理します。サーバー再起動で消えます（単一インスタンス用途を想定）。
+- 「最新情報に更新」で取得したプロフィール（表示名/bio）は Redis（`REDIS_URL`）に保存され、`server/utils/accounts.ts` のハードコード値より優先して表示されます。サーバー再起動後も保持されます。
 - 実行中はブラウザを閉じてもサーバー側処理は継続しますが、進捗ログの再表示はしません（同一プロセスが動いていればサーバーログには出力されます）。

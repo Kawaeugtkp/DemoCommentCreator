@@ -86,6 +86,27 @@ export async function createComment(
   return data.comment_id as string
 }
 
+export interface UserProfile {
+  userId: string
+  displayName: string
+  bio: string
+}
+
+/** ユーザープロフィール取得: GET /v1/chepics/user?user_id=... */
+export async function getUserProfile(idToken: string, userId: string): Promise<UserProfile> {
+  const url = `${BASE_URL}/v1/chepics/user?user_id=${encodeURIComponent(userId)}`
+  const res = await fetch(url, { headers: authHeaders(idToken) })
+  if (!res.ok) {
+    throw new Error(`プロフィール取得失敗: ${await parseError(res)}`)
+  }
+  const data: any = await res.json()
+  return {
+    userId: data.user_id,
+    displayName: data.display_name ?? '',
+    bio: data.bio ?? '',
+  }
+}
+
 /** コメントへのいいね: POST /v1/chepics/comment/like */
 export async function likeComment(idToken: string, setId: string, commentId: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/v1/chepics/comment/like`, {

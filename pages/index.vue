@@ -85,6 +85,73 @@ async function fetchTopic() {
   }
 }
 
+// --- プロフィール（表示名/bio）の最新情報に更新 ---
+const refreshing = ref(false)
+const refreshJobId = ref<string | null>(null)
+const refreshLogs = ref<JobLog[]>([])
+const refreshStatus = ref<'running' | 'completed' | 'failed' | null>(null)
+const refreshError = ref('')
+let refreshPollTimer: ReturnType<typeof setInterval> | null = null
+
+async function refreshProfiles() {
+  refreshError.value = ''
+  refreshing.value = true
+  refreshLogs.value = []
+  refreshStatus.value = 'running'
+  try {
+    const res = await $fetch<{ jobId: string }>('/api/accounts-refresh', { method: 'POST' })
+    refreshJobId.value = res.jobId
+    startRefreshPolling()
+  } catch (e: any) {
+    refreshError.value = e?.statusMessage || e?.data?.statusMessage || '更新に失敗しました'
+    refreshing.value = false
+    refreshStatus.value = null
+  }
+}
+
+function startRefreshPolling() {
+  if (refreshPollTimer) clearInterval(refreshPollTimer)
+  refreshPollTimer = setInterval(async () => {
+    if (!refreshJobId.value) return
+    try {
+      const res = await $fetch<{ status: typeof refreshStatus.value; logs: JobLog[] }>(
+        '/api/accounts-refresh-status',
+        { query: { jobId: refreshJobId.value } },
+      )
+      refreshLogs.value = res.logs
+      refreshStatus.value = res.status
+      if (res.status !== 'running') {
+        refreshing.value = false
+        if (refreshPollTimer) clearInterval(refreshPollTimer)
+        if (res.status === 'completed') {
+          await reloadAccountProfiles()
+        }
+      }
+    } catch {
+      /* セッション切れ等。ポーリング継続せず停止 */
+      if (refreshPollTimer) clearInterval(refreshPollTimer)
+      refreshing.value = false
+    }
+  }, 1500)
+}
+
+// 更新ジョブ完了後、表示名/bio だけを最新化する（セット番号・コメント等の入力中の値は保持する）
+async function reloadAccountProfiles() {
+  try {
+    const res = await $fetch<{ accounts: AccountDef[] }>('/api/accounts')
+    const byIndex = new Map(res.accounts.map((a) => [a.index, a]))
+    for (const a of accounts.value) {
+      const fresh = byIndex.get(a.index)
+      if (fresh) {
+        a.chepicsName = fresh.chepicsName
+        a.bio = fresh.bio
+      }
+    }
+  } catch {
+    /* 反映は次回のページ読み込み時に行われる */
+  }
+}
+
 // --- 実行 ---
 const running = ref(false)
 const jobId = ref<string | null>(null)
@@ -167,6 +234,7 @@ function startPolling() {
 
 onUnmounted(() => {
   if (pollTimer) clearInterval(pollTimer)
+  if (refreshPollTimer) clearInterval(refreshPollTimer)
 })
 
 async function logout() {
@@ -227,11 +295,32 @@ function sanitizeSetNumber(a: AccountForm) {
 
     <!-- アカウント一覧 -->
     <section v-if="topic" class="card">
-      <h2>アカウント（{{ accounts.length }}名）</h2>
+      <div class="acc-header">
+        <h2>アカウント（{{ accounts.length }}名）</h2>
+        <button class="btn-outline" :disabled="refreshing" @click="refreshProfiles">
+          {{ refreshing ? '更新中...' : '最新情報に更新' }}
+        </button>
+      </div>
       <p class="hint">
         各アカウントに「選択するセット番号（1〜{{ maxSetNumber }}）」「コメント」「そのコメントへのいいね数」を入力します。
         空欄の項目は実行されません。
       </p>
+      <p v-if="refreshError" class="error">{{ refreshError }}</p>
+      <div v-if="refreshStatus" class="status">
+        <p class="status-line">
+          プロフィール更新:
+          <span :class="['badge', refreshStatus]">
+            {{ refreshStatus === 'running' ? '実行中' : refreshStatus === 'completed' ? '完了' : '失敗' }}
+          </span>
+        </p>
+        <div class="log-box">
+          <div v-for="(l, i) in refreshLogs" :key="i" class="log-line">
+            <span class="log-time">{{ fmtTime(l.time) }}</span>
+            <span :style="{ color: logColor(l.level) }">{{ l.message }}</span>
+          </div>
+          <p v-if="refreshLogs.length === 0" class="log-empty">処理を開始しています...</p>
+        </div>
+      </div>
       <table class="acc-table">
         <thead>
           <tr>
@@ -336,6 +425,32 @@ function sanitizeSetNumber(a: AccountForm) {
 .card h2 {
   margin: 0 0 14px;
   font-size: 18px;
+}
+.acc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.acc-header h2 {
+  margin: 0;
+}
+.btn-outline {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4263eb;
+  background: #fff;
+  border: 1px solid #4263eb;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-outline:disabled {
+  color: #aab4e8;
+  border-color: #aab4e8;
+  cursor: default;
 }
 .topic-input {
   display: flex;
